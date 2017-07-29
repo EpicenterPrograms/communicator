@@ -1,0 +1,5 @@
+runtime: php55
+api_version: 1
+handlers:
+- url: /.*  # for all URLs
+  script: index.php  # run this script
