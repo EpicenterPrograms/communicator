@@ -19,6 +19,6 @@ function tame($information) {
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $text = tame($_POST["text"]);
     $color = tame($_POST["color"]);
-    echo '<span style="color:$color">$text</span>';
+    echo '<span style="color:' . $color . '">' . $text . '</span>';
 }
 ?>
