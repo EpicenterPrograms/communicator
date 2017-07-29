@@ -5,5 +5,19 @@ if (in_array($_SERVER['HTTP_ORIGIN'], array())) {  // if the request is coming f
     header("Access-Control-Allow-Origin: " . $_SERVER["HTTP_ORIGIN"]);
 }
 */
-echo "This is a test.";
+
+function tame($information) {
+    /**
+    makes the information passed a little more secure
+    */
+    $information = trim($information);
+    $information = stripslashes($information);
+    $information = htmlspecialchars($information);
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $text = tame($_POST["text"]);
+    $color = tame($_POST["color"]);
+    echo '<span style="color:$color">$text</span>';
+}
 ?>
