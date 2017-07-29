@@ -13,6 +13,7 @@ function tame($information) {
     $information = trim($information);
     $information = stripslashes($information);
     $information = htmlspecialchars($information);
+    return $information;
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
