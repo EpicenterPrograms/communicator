@@ -6,6 +6,8 @@ if (in_array($_SERVER['HTTP_ORIGIN'], array())) {  // if the request is coming f
 }
 */
 
+use google\appengine\api\cloud_storage\CloudStorageTools;
+
 function tame($information) {
     /**
     makes the information passed a little more secure
@@ -17,8 +19,29 @@ function tame($information) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $text = tame($_POST["text"]);
-    $color = tame($_POST["color"]);
-    echo '<span style="color:' . $color . '">' . $text . '</span>';
+    $location = tame($_POST["location"]);
+    switch (tame($_POST["action"])) {
+        case "write":
+            //// file_put_contents("gs://bucket/file", information);
+            $text = "You tried to write.";
+            break;
+        case "read":
+            //// CloudStorageTools::serve("gs://bucket/file");
+            //// or
+            //// file_get_contents("gs://bucket/file");
+            $text = "You tried to read.";
+            break;
+        case "delete":
+            //// unlink("gs://bucket/file");
+            $text = "You tried to delete.";
+            break;
+        default:
+            trigger_error("The action requested is not availible.", E_USER_ERROR);
+            // There's also E_USER_NOTICE (default) and E_USER_WARNING.
+    }
+    echo $text;
 }
+// for deploying this app using Google Cloud Shell:
+# git clone https://github.com/EpicenterPrograms/communicator communicator && cd communicator && gcloud app deploy && cd ..
+# rm -rf communicator
 ?>
