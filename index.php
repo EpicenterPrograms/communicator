@@ -22,18 +22,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $location = tame($_POST["location"]);
     switch (tame($_POST["action"])) {
         case "write":
-            //// file_put_contents("gs://bucket/file", information);
-            $text = "You tried to write.";
+            $information = tame($_POST["information"]);
+            file_put_contents("gs://superb-beach-171102.appspot.com/" . $location, $information);
+            $text = "You wrote to " . $location;
             break;
         case "read":
             //// CloudStorageTools::serve("gs://bucket/file");
-            //// or
-            //// file_get_contents("gs://bucket/file");
-            $text = "You tried to read.";
+            $text = file_get_contents("gs://superb-beach-171102.appspot.com/" . $location);
             break;
         case "delete":
-            //// unlink("gs://bucket/file");
-            $text = "You tried to delete.";
+            unlink("gs://superb-beach-171102.appspot.com/" . $location);
+            $text = "You deleted " . $location;
             break;
         default:
             trigger_error("The action requested is not availible.", E_USER_ERROR);
