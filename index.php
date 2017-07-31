@@ -1,5 +1,7 @@
 <?php
 header("Access-Control-Allow-Origin: *");  // If multiple headers of this type are set, an error might be thrown.
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-type");
 /*
 if (in_array($_SERVER['HTTP_ORIGIN'], array())) {  // if the request is coming from an acceptable origin (contained within the array)
     header("Access-Control-Allow-Origin: " . $_SERVER["HTTP_ORIGIN"]);
