@@ -1,12 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: *");  // If multiple headers of this type are set, an error might be thrown.
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST");
 header("Access-Control-Allow-Headers: Content-type");
-/*
-if (in_array($_SERVER['HTTP_ORIGIN'], array())) {  // if the request is coming from an acceptable origin (contained within the array)
-    header("Access-Control-Allow-Origin: " . $_SERVER["HTTP_ORIGIN"]);
-}
-*/
 
 # use google\appengine\api\cloud_storage\CloudStorageTools;
 
@@ -20,11 +14,19 @@ function tame($information) {
     return $information;
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (true) {  // if the resource allows any origin
+        header("Access-Control-Allow-Origin: *");
+    } elseif (in_array($_SERVER["HTTP_ORIGIN"], array())) {  // if the request is coming from an acceptable origin (contained within the array)
+        header("Access-Control-Allow-Origin: " . tame($_SERVER["HTTP_ORIGIN"]));
+    }
+    echo "You tried to get something.";
+} elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = tame($_POST["username"]);
     $password = tame($_POST["password"]);
     $location = tame($_POST["location"]);
-    if (true) {  //// password_verify($password, file_get_contents("gs://" . $location . $username . "/password"))) {  // if the password is correct
+    if (true) {  //// password_verify($password, file_get_contents("gs://" . $location . "/" . $username . "/password"))) {  // if the password is correct
+        header("Access-Control-Allow-Origin: " . tame($_SERVER["HTTP_ORIGIN"]));
         switch (tame($_POST["action"])) {  // switch uses ==
             case "store":
                 file_put_contents("gs://" . $location, $_POST["information"]);  // not taming the information could be bad
@@ -43,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 // There's also E_USER_NOTICE (default) and E_USER_WARNING.
         }
     } elseif (tame($_POST["action"]) === "signup") {
-        //// file_put_contents("gs://" . $location . $username . "/password", password_hash($password, PASSWORD_DEFAULT));
+        //// file_put_contents("gs://" . $location . "/" . $username . "/password", password_hash($password, PASSWORD_DEFAULT));
     } else {
         $response = "The password is incorrect.";
     }
