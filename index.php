@@ -8,7 +8,7 @@ if (in_array($_SERVER['HTTP_ORIGIN'], array())) {  // if the request is coming f
 }
 */
 
-use google\appengine\api\cloud_storage\CloudStorageTools;
+# use google\appengine\api\cloud_storage\CloudStorageTools;
 
 function tame($information) {
     /**
@@ -21,26 +21,33 @@ function tame($information) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $username = tame($_POST["username"]);
+    $password = tame($_POST["password"]);
     $location = tame($_POST["location"]);
-    switch (tame($_POST["action"])) {
-        case "write":
-            $information = tame($_POST["information"]);
-            file_put_contents("gs://superb-beach-171102.appspot.com/" . $location, $information);
-            $text = "You wrote to " . $location;
-            break;
-        case "read":
-            //// CloudStorageTools::serve("gs://bucket/file");
-            $text = file_get_contents("gs://superb-beach-171102.appspot.com/" . $location);
-            break;
-        case "delete":
-            unlink("gs://superb-beach-171102.appspot.com/" . $location);
-            $text = "You deleted " . $location;
-            break;
-        default:
-            trigger_error("The action requested is not availible.", E_USER_ERROR);
-            // There's also E_USER_NOTICE (default) and E_USER_WARNING.
+    if (true) {  //// password_verify($password, file_get_contents("gs://" . $location . $username . "/password"))) {  // if the password is correct
+        switch (tame($_POST["action"])) {  // switch uses ==
+            case "store":
+                file_put_contents("gs://" . $location, $_POST["information"]);  // not taming the information could be bad
+                $response = "You wrote to " . $location;
+                break;
+            case "recall":
+                $response = file_get_contents("gs://" . $location);
+                //// CloudStorageTools::serve("gs://bucket/file");
+                break;
+            case "forget":
+                unlink("gs://" . $location);
+                $response = "You deleted " . $location;
+                break;
+            default:
+                trigger_error("The action requested is not availible.", E_USER_ERROR);
+                // There's also E_USER_NOTICE (default) and E_USER_WARNING.
+        }
+    } elseif (tame($_POST["action"]) === "signup") {
+        //// file_put_contents("gs://" . $location . $username . "/password", password_hash($password, PASSWORD_DEFAULT));
+    } else {
+        $response = "The password is incorrect.";
     }
-    echo $text;
+    echo $response;
 }
 // for deploying this app using Google Cloud Shell:
 # git clone https://github.com/EpicenterPrograms/communicator communicator && cd communicator && gcloud app deploy && cd ..
