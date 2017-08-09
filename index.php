@@ -56,6 +56,9 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             $verifier = tame($_POST["verifier"]);
         } else {
             $verifier = "https://epicenterresources.appspot.com";
+            if (!$_POST["pwd_path"]) {
+                $pwd_path = "gs://epicenterresources.appspot.com/users/" . $username . "/password";
+            }
         }
         $options = array("http" => array(
             "method" => "POST",
