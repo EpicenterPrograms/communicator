@@ -43,6 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $username = tame($_POST["username"]);
     $password = tame($_POST["password"]);
     $location = tame($_POST["location"]);  //// You might want to make setting the location easier.
+    /*
     if ($_POST["pwd_path"]) {
         $pwd_path = tame($_POST["pwd_path"]);
     } else {
@@ -89,6 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             
         }
     }
+    */
     $verified = true;  ////
     if ($verified === true || $verified === "true") {  // if the password is correct
         header("Access-Control-Allow-Origin: " . tame($_SERVER["HTTP_ORIGIN"]));
@@ -113,14 +115,15 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 // There's also E_USER_NOTICE (default) and E_USER_WARNING.
         }
     } elseif (tame($_POST["action"]) === "register") {
+        //// set header
         //// file_put_contents($location, password_hash($password, PASSWORD_DEFAULT));
         $response = "You tried to register.";
     } elseif (tame($_POST["action"]) !== "verify") {
+        header("Access-Control-Allow-Origin: *");
         $response = "The password is incorrect.";
     }
     echo $response;
 }
 // for deploying this app using Google Cloud Shell (when you call the file "communicator"):
-# git clone https://github.com/EpicenterPrograms/communicator communicator && cd communicator && gcloud app deploy && cd ..
-# rm -rf communicator
+# rm -rf communicator && git clone https://github.com/EpicenterPrograms/communicator communicator && cd communicator && gcloud app deploy && cd ..
 ?>
