@@ -43,7 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $username = tame($_POST["username"]);
     $password = tame($_POST["password"]);
     $location = tame($_POST["location"]);  //// You might want to make setting the location easier.
-    /*
     if ($_POST["pwd_path"]) {
         $pwd_path = tame($_POST["pwd_path"]);
     } else {
@@ -85,12 +84,13 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         }
     } else {
         //// set header?
+        /*
         $verified = password_verify($password, file_get_contents($pwd_path));
         if (!$verified) {
             
         }
+        */
     }
-    */
     $verified = true;  ////
     if ($verified === true || $verified === "true") {  // if the password is correct
         header("Access-Control-Allow-Origin: " . tame($_SERVER["HTTP_ORIGIN"]));
