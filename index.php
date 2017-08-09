@@ -40,6 +40,9 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     information => 
     //// override => 
     */
+    header("Access-Control-Allow-Origin: " . tame($_SERVER["HTTP_ORIGIN"]));
+        # This needs to be set at the beginning or else it would be impossible to verify the user.
+        # The header can be changed later.
     $username = tame($_POST["username"]);
     $password = tame($_POST["password"]);
     $location = tame($_POST["location"]);  //// You might want to make setting the location easier.
@@ -49,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         $pwd_path = "gs://" . strstr($location, "://") . "/" . $username . "/password";
     }
     if (tame($_POST["verification"]) === "external") {  // if the user needs to be verified through an external source
-        //// set header
         if ($_POST["verifier"]) {
             $verifier = tame($_POST["verifier"]);
         } else {
@@ -76,24 +78,19 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             
         }
     } elseif (tame($_POST["action"]) === "verify") {  // if the script is just being run to verify a user
-        //// set header
         if (password_verify($password, file_get_contents($pwd_path))) {
             $response = true;
         } else {
             $response = false;
         }
     } else {
-        //// set header?
-        /*
         $verified = password_verify($password, file_get_contents($pwd_path));
         if (!$verified) {
             
         }
-        */
     }
     $verified = true;  ////
     if ($verified === true || $verified === "true") {  // if the password is correct
-        header("Access-Control-Allow-Origin: " . tame($_SERVER["HTTP_ORIGIN"]));
         switch (tame($_POST["action"])) {  // switch uses ==
             case "store":
                 //// Make sure people don't write to their password.
@@ -115,11 +112,9 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 // There's also E_USER_NOTICE (default) and E_USER_WARNING.
         }
     } elseif (tame($_POST["action"]) === "register") {
-        //// set header
         //// file_put_contents($location, password_hash($password, PASSWORD_DEFAULT));
         $response = "You tried to register.";
     } elseif (tame($_POST["action"]) !== "verify") {
-        header("Access-Control-Allow-Origin: *");
         $response = "The password is incorrect.";
     }
     echo $response;
