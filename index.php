@@ -46,10 +46,10 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $username = tame($_POST["username"]);
     $password = tame($_POST["password"]);
     $location = tame($_POST["location"]);  //// You might want to make setting the location easier.
-    if ($_POST["pwd_path"]) {
+    if ($_POST["pwd_path"]) {  // if the path to the password is specified
         $pwd_path = tame($_POST["pwd_path"]);
     } else {
-        $pwd_path = "gs://" . strstr($location, "://") . "/" . $username . "/password";
+        $pwd_path = "gs://" . substr($location, strpos($location,"://")+3, strrpos($location,"/")-strlen($location)) . "/password";
     }
     if (tame($_POST["verification"]) === "external") {  // if the user needs to be verified through an external source
         if ($_POST["verifier"]) {
