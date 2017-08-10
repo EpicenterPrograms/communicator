@@ -73,56 +73,56 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         $context = stream_contex_create($options);
         $destination = fopen($verifier, "r", false, $context);
         if (!$destination) {  // if the URL doesn't go anywhere
-            array_push($response->errors, "There's something wrong with URL for password verification.");
+            array_push($response["errors"], "There's something wrong with URL for password verification.");
         }
         $verifier_response = stream_get_contents($destination);
         if ($verifier_response === false) {  // if there's a problem reading the data
-            array_push($response->errors, "The data from the verifying URL can't be read.");
+            array_push($response["errors"], "The data from the verifying URL can't be read.");
         } else {
             parse_str($verifier_response, $external_verifier);  // undoes http_build_query()
-            $response->verified = $external_verifier->value;
+            $response["verified"] = $external_verifier["value"];
         }
     } elseif (tame($_POST["action"]) === "verify") {  // if the script is just being run to verify a user
         if (password_verify($password, file_get_contents($pwd_path))) {
-            $response->value = true;
+            $response["value"] = true;
         } else {
-            $response->value = false;
+            $response["value"] = false;
         }
     } else {
-        $response->verified = password_verify($password, file_get_contents($pwd_path));
+        $response["verified"] = password_verify($password, file_get_contents($pwd_path));
     }
-    if ($response->verified === true || $response->verified === "true") {  // if the password is correct
+    if ($response["verified"] === true || $response["verified"] === "true") {  // if the password is correct
         switch (tame($_POST["action"])) {  // switch uses ==
             case "store":
                 //// Make sure people don't write to their password.
                 file_put_contents($location, $_POST["information"]);  // not taming the information could be bad
-                array_push($response->messages, "You wrote to " . $location);
+                array_push($response["messages"], "You wrote to " . $location);
                 break;
             case "recall":
-                $response->value = file_get_contents($location);
-                array_push($response->messages, "You read from " . $location);
+                $response["value"] = file_get_contents($location);
+                array_push($response["messages"], "You read from " . $location);
                 break;
             case "forget":
                 //// Make sure people don't delete their password (usually).
                 unlink($location);
-                array_push($response->messages, "You deleted " . $location);
+                array_push($response["messages"], "You deleted " . $location);
                 break;
             case "register":
-                array_push($response->messages, "You're already registered.");
+                array_push($response["messages"], "You're already registered.");
                 break;
             default:
-                array_push($response->errors, "The action requested is not availible.");
+                array_push($response["errors"], "The action requested is not availible.");
         }
     } elseif (tame($_POST["action"]) === "register") {
         file_put_contents($pwd_path, password_hash($password, PASSWORD_DEFAULT));
-        array_push($response->messages, 'You registered the password "' . $password . '" in ' . $pwd_path);
+        array_push($response["messages"], 'You registered the password "' . $password . '" in ' . $pwd_path);
     } elseif (tame($_POST["action"]) !== "verify") {
-        array_push($response->messages, "The username and/or password isn't correct.");
+        array_push($response["messages"], "The username and/or password isn't correct.");
     }
-    //// echo http_build_query($response);  // Arrays can't be echoed: they have to be converted into a string.
-    $test_array = array("test1" => "value1", "test2" => array("key"=>"value2"), "test3" => array("value3","value4"));
-    $test_array["test_property"] = "property_value";
-    echo http_build_query($test_array);
+    echo http_build_query($response);  // Arrays can't be echoed: they have to be converted into a string.
+    //// $test_array = array("test1" => "value1", "test2" => array("key"=>"value2"), "test3" => array("value3","value4"));
+    //// $test_array["test_property"] = "property_value";
+    //// echo http_build_query($test_array);
 }
 // for deploying this app using Google Cloud Shell (when you call the file "communicator"):
 # rm -rf communicator && git clone https://github.com/EpicenterPrograms/communicator communicator && cd communicator && gcloud app deploy && cd ..
