@@ -120,7 +120,8 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         array_push($response->messages, "The username and/or password isn't correct.");
     }
     //// echo http_build_query($response);  // Arrays can't be echoed: they have to be converted into a string.
-    echo http_build_query(array("test1" => "value1", "test2" => array("value2"), "test3" => array("value4","value5")));
+    $test_array = array("test1" => "value1", "test2" => array("key"=>"value2"), "test3" => array("value3","value4"));
+    echo http_build_query($test_array);
 }
 // for deploying this app using Google Cloud Shell (when you call the file "communicator"):
 # rm -rf communicator && git clone https://github.com/EpicenterPrograms/communicator communicator && cd communicator && gcloud app deploy && cd ..
