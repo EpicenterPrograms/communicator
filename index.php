@@ -121,6 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     }
     //// echo http_build_query($response);  // Arrays can't be echoed: they have to be converted into a string.
     $test_array = array("test1" => "value1", "test2" => array("key"=>"value2"), "test3" => array("value3","value4"));
+    $test_array->test_property = "property_value";
     echo http_build_query($test_array);
 }
 // for deploying this app using Google Cloud Shell (when you call the file "communicator"):
