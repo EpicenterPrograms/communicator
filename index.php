@@ -92,6 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         $response["verified"] = password_verify($password, file_get_contents($pwd_path));
     }
     if ($response["verified"] === true || $response["verified"] === "true") {  // if the password is correct
+        //// Make sure people can only modify their own stuff.
         switch (tame($_POST["action"])) {  // switch uses ==
             case "store":
                 //// Make sure people don't write to their password.
