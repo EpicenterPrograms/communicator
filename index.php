@@ -49,9 +49,9 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     if ($_POST["pwd_path"]) {  // if the path to the password is specified
         $pwd_path = tame($_POST["pwd_path"]);
     } else {
-        $pwd_path = "gs://" . substr($location, strpos($location,"://")+3, strrpos($location,"/")-strlen($location)) . "/security/password";
+        $pwd_path = "gs://" . substr(substr($location, strpos($location,"://")+3), 0, strpos(substr($location, strpos($location,"://")+3),"/")) . "/users/" . $username . "/security/password";
     }
-    $response = array("messages" => array(), "errors" => array());
+    $response = array("messages" => array(), "warnings" => array(), "errors" => array());
     if (tame($_POST["verification"]) === "external") {  // if the user needs to be verified through an external source
         if ($_POST["verifier"]) {
             $verifier = tame($_POST["verifier"]);
@@ -96,17 +96,29 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         switch (tame($_POST["action"])) {  // switch uses ==
             case "store":
                 //// Make sure people don't write to their password.
-                file_put_contents($location, $_POST["information"]);  // not taming the information could be bad
+                file_put_contents($location, array("information" => $_POST["information"], "owners" => array($username))));  // not taming the information could be bad
                 array_push($response["messages"], "You wrote to " . $location);
                 break;
             case "recall":
-                $response["value"] = file_get_contents($location);
-                array_push($response["messages"], "You read from " . $location);
+                if (file_get_contents($location) !== false) {
+                    $contents = file_get_contents($location);
+                    if (in_array($username, $contents["owners"])) {
+                        $response["value"] = $contents["information"];
+                        array_push($response["messages"], "You read from " . $location);
+                    } else {
+                        array_push($response["warnings"], "You don't have permission to access " . $location);
+                } else {
+                    array_push($response["warnings"], "The location " . $location . " has no information.");
+                }
                 break;
             case "forget":
                 //// Make sure people don't delete their password (usually).
                 unlink($location);
                 array_push($response["messages"], "You deleted " . $location);
+                break;
+            case "permit":
+                break;
+            case "block":
                 break;
             case "register":
                 array_push($response["messages"], "You're already registered.");
@@ -115,10 +127,14 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 array_push($response["errors"], "The action requested is not availible.");
         }
     } elseif (tame($_POST["action"]) === "register") {
-        file_put_contents($pwd_path, password_hash($password, PASSWORD_DEFAULT));
-        array_push($response["messages"], 'You registered the password "' . $password . '" in ' . $pwd_path);
+        if (file_get_contents($pwd_path) === false) {
+            file_put_contents($pwd_path, password_hash($password, PASSWORD_DEFAULT));
+            array_push($response["messages"], 'You registered the password "' . $password . '" in ' . $pwd_path);
+        } else {
+            array_push($response["warnings"], "That username is already taken.");
+        }
     } elseif (tame($_POST["action"]) !== "verify") {
-        array_push($response["messages"], "The username and/or password isn't correct.");
+        array_push($response["warnings"], "The username and/or password isn't correct.");
     }
     echo http_build_query($response);  // Arrays can't be echoed: they have to be converted into a string.
 }
