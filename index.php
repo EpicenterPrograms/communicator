@@ -13,6 +13,14 @@ function tame($information) {
     return $information;
 }
 
+function get_info($location) {
+    /**
+    returns the value of file_get_contents() and parse_str() without polluting the namespace
+    */
+    parse_str(file_get_contents($location), $result);
+    return $result;
+}
+
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
     if (true) {  // if the resource allows any origin
@@ -83,21 +91,32 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             $response["verified"] = $external_verifier["value"];
         }
     } elseif (tame($_POST["action"]) === "verify") {  // if the script is just being run to verify a user
-        if (password_verify($password, file_get_contents($pwd_path))) {
+        parse_str(file_get_contents($pwd_path), $pwd_info);
+        if (in_array($username, $pwd_info["owners"]) && password_verify($password, $pwd_info["information"])) {
             $response["value"] = true;
         } else {
             $response["value"] = false;
         }
     } else {
-        $response["verified"] = password_verify($password, file_get_contents($pwd_path));
+        parse_str(file_get_contents($pwd_path), $pwd_info);
+        $response["verified"] = in_array($username, $pwd_info["owners"]) && password_verify($password, $pwd_info["information"]);
     }
     if ($response["verified"] === true || $response["verified"] === "true") {  // if the password is correct
         //// Make sure people can only modify their own stuff.
         switch (tame($_POST["action"])) {  // switch uses ==
             case "store":
                 //// Make sure people don't write to their password.
-                file_put_contents($location, http_build_query(array("information" => $_POST["information"], "owners" => array($username))));  // not taming the information could be bad
-                array_push($response["messages"], "You wrote to " . $location);
+                if (file_get_contents($location) === false) {
+                    file_put_contents($location, http_build_query(array("information" => $_POST["information"], "owners" => array($username))));  // not taming the information could be bad
+                    array_push($response["messages"], "You made a file at " . $location);
+                } else {
+                    if (in_array($username, get_info($location)["owners"])) {
+                        file_put_contents($location, http_build_query(array("information" => $_POST["information"], "owners" => array($username))));
+                        array_push($response["messages"], "You modified the file at " . $location);
+                    } else {
+                        array_push($response["warnings"], "The location " . $location . " is in use by (a) different user(s).");
+                    }
+                }
                 break;
             case "recall":
                 if (file_get_contents($location) !== false) {
@@ -114,8 +133,14 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 break;
             case "forget":
                 //// Make sure people don't delete their password (usually).
-                unlink($location);
-                array_push($response["messages"], "You deleted " . $location);
+                if (file_get_contents($location) === false) {
+                    array_push($response["warnings"], "There's nothing to forget at " . $location);
+                } elseif (in_array($username, get_info($location)["owners"])) {
+                    unlink($location);
+                    array_push($response["messages"], "You deleted " . $location);
+                } else {
+                    array_push($response["warnings"], "You don't have permission to delete " . $location);
+                }
                 break;
             case "permit":
                 break;
@@ -129,7 +154,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         }
     } elseif (tame($_POST["action"]) === "register") {
         if (file_get_contents($pwd_path) === false) {
-            file_put_contents($pwd_path, password_hash($password, PASSWORD_DEFAULT));
+            file_put_contents($pwd_path, http_build_query(array("information" => password_hash($password, PASSWORD_DEFAULT), "owners" => array($username))));
             array_push($response["messages"], 'You registered the password "' . $password . '" in ' . $pwd_path);
         } else {
             array_push($response["warnings"], "That username is already taken.");
