@@ -1,6 +1,7 @@
 <?php
 header("Access-Control-Allow-Methods: GET, POST");
 header("Access-Control-Allow-Headers: Content-type");
+header("Access-Control-Allow-Origin: *");
 
 
 function tame($information) {
@@ -22,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     }
     echo "You tried to get something.";
 } elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
-    /*
+    /**
     POST options:
     username => 
     password => 
