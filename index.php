@@ -106,6 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                         $response["value"] = $contents["information"];
                         array_push($response["messages"], "You read from " . $location);
                     } else {
+                        $response["value"] = $contents;
                         array_push($response["warnings"], "You don't have permission to access " . $location);
                     }
                 } else {
