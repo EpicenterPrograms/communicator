@@ -1,7 +1,6 @@
 <?php
 header("Access-Control-Allow-Methods: GET, POST");
 header("Access-Control-Allow-Headers: Content-type");
-header("Access-Control-Allow-Origin: *");
 
 
 function tame($information) {
@@ -97,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         switch (tame($_POST["action"])) {  // switch uses ==
             case "store":
                 //// Make sure people don't write to their password.
-                file_put_contents($location, array("information" => $_POST["information"], "owners" => array($username))));  // not taming the information could be bad
+                file_put_contents($location, array("information" => $_POST["information"], "owners" => array($username)));  // not taming the information could be bad
                 array_push($response["messages"], "You wrote to " . $location);
                 break;
             case "recall":
@@ -108,6 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                         array_push($response["messages"], "You read from " . $location);
                     } else {
                         array_push($response["warnings"], "You don't have permission to access " . $location);
+                    }
                 } else {
                     array_push($response["warnings"], "The location " . $location . " has no information.");
                 }
