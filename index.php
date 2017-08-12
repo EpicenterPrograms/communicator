@@ -101,12 +101,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 break;
             case "recall":
                 if (file_get_contents($location) !== false) {
-                    $contents = parse_str(parse_str(file_get_contents($location)));
+                    parse_str(file_get_contents($location), $contents);
                     if (in_array($username, $contents["owners"])) {
                         $response["value"] = $contents["information"];
                         array_push($response["messages"], "You read from " . $location);
                     } else {
-                        $response["value"] = $contents;
                         array_push($response["warnings"], "You don't have permission to access " . $location);
                     }
                 } else {
