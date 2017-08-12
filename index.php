@@ -96,17 +96,16 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         switch (tame($_POST["action"])) {  // switch uses ==
             case "store":
                 //// Make sure people don't write to their password.
-                file_put_contents($location, array("information" => $_POST["information"], "owners" => array($username)));  // not taming the information could be bad
+                file_put_contents($location, http_build_query(array("information" => $_POST["information"], "owners" => array($username))));  // not taming the information could be bad
                 array_push($response["messages"], "You wrote to " . $location);
                 break;
             case "recall":
                 if (file_get_contents($location) !== false) {
-                    $contents = file_get_contents($location);
+                    $contents = parse_str(file_get_contents($location));
                     if (in_array($username, $contents["owners"])) {
                         $response["value"] = $contents["information"];
                         array_push($response["messages"], "You read from " . $location);
                     } else {
-                        $response["value"] = $contents;
                         array_push($response["warnings"], "You don't have permission to access " . $location);
                     }
                 } else {
