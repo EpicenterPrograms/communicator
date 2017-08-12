@@ -101,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 break;
             case "recall":
                 if (file_get_contents($location) !== false) {
-                    $contents = parse_str(file_get_contents($location));
+                    $contents = file_get_contents($location);
                     if (in_array($username, $contents["owners"])) {
                         $response["value"] = $contents["information"];
                         array_push($response["messages"], "You read from " . $location);
