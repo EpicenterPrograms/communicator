@@ -143,8 +143,33 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 }
                 break;
             case "permit":
+                $file = get_info($location));
+                if (in_array($username, $file["owners"]) {
+                    if (in_array($_POST["information"], $file["owners"])) {
+                        array_push($response["messages"], $_POST["information"] . " is already an owner of " . $location);
+                    } else {
+                        array_push($file["owners"], $_POST["information"]);
+                        file_put_contents($location, http_build_query($file));
+                        array_push($response["messages"], "You made " . $_POST["information"] . " an owner of " . $location);
+                    }
+                } else {
+                    array_push($response["warnings"], "You aren't allowed to manage permissions to " . $location);
+                }
                 break;
             case "block":
+                $file = get_info($location));
+                if (in_array($username, $file["owners"]) {
+                    $index = array_search($_POST["information"], $file["owners"]);
+                    if ($index === false) {
+                        array_push($response["messages"], "You already removed " . $_POST["information"] . "'s permission to access " . $location);
+                    } else {
+                        array_splice($file["owners"], $index, 1);
+                        file_put_contents($location, http_build_query($file));
+                        array_push($response["messages"], "You removed " . $_POST["information"] . "'s permission to access " . $location);
+                    }
+                } else {
+                    array_push($response["warnings"], "You aren't allowed to manage permissions to " . $location);
+                }
                 break;
             case "register":
                 array_push($response["messages"], "You're already registered.");
