@@ -54,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $username = tame($_POST["username"]);
     $password = tame($_POST["password"]);
     $location = tame($_POST["location"]);  //// You might want to make setting the location easier.
+    $information = $_POST["information"];
     if ($_POST["pwd_path"]) {  // if the path to the password is specified
         $pwd_path = tame($_POST["pwd_path"]);
     } else {
@@ -107,11 +108,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             case "store":
                 //// Make sure people don't write to their password.
                 if (file_get_contents($location) === false) {
-                    file_put_contents($location, http_build_query(array("information" => $_POST["information"], "owners" => array($username))));  // not taming the information could be bad
+                    file_put_contents($location, http_build_query(array("information" => $information, "owners" => array($username))));  // not taming the information could be bad
                     array_push($response["messages"], "You made a file at " . $location);
                 } else {
                     if (in_array($username, get_info($location)["owners"])) {
-                        file_put_contents($location, http_build_query(array("information" => $_POST["information"], "owners" => array($username))));
+                        file_put_contents($location, http_build_query(array("information" => $information, "owners" => array($username))));
                         array_push($response["messages"], "You modified the file at " . $location);
                     } else {
                         array_push($response["warnings"], "The location " . $location . " is in use by (a) different user(s).");
@@ -143,29 +144,29 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 }
                 break;
             case "permit":
-                $file = get_info($location));
-                if (in_array($username, $file["owners"]) {
-                    if (in_array($_POST["information"], $file["owners"])) {
-                        array_push($response["messages"], $_POST["information"] . " is already an owner of " . $location);
+                $file = get_info($location);
+                if (in_array($username, $file["owners"])) {
+                    if (in_array($information, $file["owners"])) {
+                        array_push($response["messages"], $information . " is already an owner of " . $location);
                     } else {
-                        array_push($file["owners"], $_POST["information"]);
+                        array_push($file["owners"], $information);
                         file_put_contents($location, http_build_query($file));
-                        array_push($response["messages"], "You made " . $_POST["information"] . " an owner of " . $location);
+                        array_push($response["messages"], "You made " . $information . " an owner of " . $location);
                     }
                 } else {
                     array_push($response["warnings"], "You aren't allowed to manage permissions to " . $location);
                 }
                 break;
             case "block":
-                $file = get_info($location));
-                if (in_array($username, $file["owners"]) {
-                    $index = array_search($_POST["information"], $file["owners"]);
+                $file = get_info($location);
+                if (in_array($username, $file["owners"])) {
+                    $index = array_search($information, $file["owners"]);
                     if ($index === false) {
-                        array_push($response["messages"], "You already removed " . $_POST["information"] . "'s permission to access " . $location);
+                        array_push($response["messages"], "You already removed " . $information . "'s permission to access " . $location);
                     } else {
                         array_splice($file["owners"], $index, 1);
                         file_put_contents($location, http_build_query($file));
-                        array_push($response["messages"], "You removed " . $_POST["information"] . "'s permission to access " . $location);
+                        array_push($response["messages"], "You removed " . $information . "'s permission to access " . $location);
                     }
                 } else {
                     array_push($response["warnings"], "You aren't allowed to manage permissions to " . $location);
