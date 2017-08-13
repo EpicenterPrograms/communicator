@@ -163,6 +163,8 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                     $index = array_search($information, $file["owners"]);
                     if ($index === false) {
                         array_push($response["messages"], "You already removed " . $information . "'s permission to access " . $location);
+                    } elseif ($username === $information) {
+                        array_push($response["warnings"], "You aren't allowed to remove your own permission to access a file.");
                     } else {
                         array_splice($file["owners"], $index, 1);
                         file_put_contents($location, http_build_query($file));
@@ -171,6 +173,10 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 } else {
                     array_push($response["warnings"], "You aren't allowed to manage permissions to " . $location);
                 }
+                break;
+            case "list_files":
+                break;
+            case "list_owners":
                 break;
             case "register":
                 array_push($response["messages"], "You're already registered.");
